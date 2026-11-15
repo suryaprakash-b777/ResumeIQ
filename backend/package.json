@@ -1,0 +1,46 @@
+{
+  "name": "ai-analyzer-backend",
+  "version": "1.0.0",
+  "description": "AI Analyzer & ResumeIQ Full Backend Service",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:push": "prisma db push",
+    "prisma:seed": "node prisma/seed.js",
+    "db:use-sqlite": "node -e \"const fs=require('fs');let s=fs.readFileSync('prisma/schema.prisma','utf8');s=s.replace(/provider\\s*=\\s*\\\"postgresql\\\"/, 'provider = \\\"sqlite\\\"');fs.writeFileSync('prisma/schema.prisma', s);console.log('Switched Prisma to SQLite');\"",
+    "db:use-postgres": "node -e \"const fs=require('fs');let s=fs.readFileSync('prisma/schema.prisma','utf8');s=s.replace(/provider\\s*=\\s*\\\"sqlite\\\"/, 'provider = \\\"postgresql\\\"');fs.writeFileSync('prisma/schema.prisma', s);console.log('Switched Prisma to PostgreSQL');\""
+  },
+  "keywords": [
+    "ai",
+    "gemini",
+    "resume-analyzer",
+    "code-analyzer",
+    "data-analyzer",
+    "ats-scorer"
+  ],
+  "author": "AI Analyzer Team",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.0",
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.9.0",
+    "multer": "^1.4.5-lts.1",
+    "pdf-parse": "^1.1.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9",
+    "prisma": "^5.22.0"
+  }
+}
+

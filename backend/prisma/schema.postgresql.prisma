@@ -1,0 +1,90 @@
+// Prisma schema for AI Analyzer and ResumeIQ (PostgreSQL)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  resumes      Resume[]
+  analyses     Analysis[]
+
+  @@map("users")
+}
+
+model Resume {
+  id         String     @id @default(uuid())
+  userId     String
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName   String
+  fileType   String
+  fileSize   Int
+  rawText    String     @db.Text
+  parsedData Json
+  createdAt  DateTime   @default(now())
+  analyses   Analysis[]
+
+  @@map("resumes")
+}
+
+model Analysis {
+  id                     String    @id @default(uuid())
+  userId                 String
+  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId               String?
+  resume                 Resume?   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  analyzerType           String    @default("resume") // resume, text, image, code, data, general
+  inputFileName          String?
+  inputType              String?
+  targetRole             String?
+  jobDescription         String?   @db.Text
+  atsScore               Int?
+  jobMatchScore          Int?
+  scoreBreakdown         Json?
+  extractedSkills        Json?
+  matchedSkills          Json?
+  missingSkills          Json?
+  missingKeywords        Json?
+  strengths              Json?
+  weaknesses             Json?
+  improvementSuggestions Json?
+  recommendedRoles       Json?
+  roadmap                Json?
+  geminiSummary          String?   @db.Text
+  result                 Json?
+  createdAt              DateTime  @default(now())
+
+  @@index([userId])
+  @@index([analyzerType])
+  @@map("analyses")
+}
+
+model Skill {
+  id       String @id @default(uuid())
+  name     String @unique
+  category String
+
+  @@map("skills")
+}
+
+model RoleTemplate {
+  id              String @id @default(uuid())
+  title           String @unique
+  category        String
+  requiredSkills  Json
+  preferredSkills Json
+  description     String @db.Text
+
+  @@map("role_templates")
+}
+

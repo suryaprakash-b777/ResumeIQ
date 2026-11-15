@@ -1,0 +1,90 @@
+// Prisma schema for AI Analyzer and ResumeIQ
+// Supports SQLite (default local) and PostgreSQL (production/configured)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  resumes      Resume[]
+  analyses     Analysis[]
+
+  @@map("users")
+}
+
+model Resume {
+  id         String     @id @default(uuid())
+  userId     String?
+  user       User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName   String
+  fileType   String
+  fileSize   Int
+  rawText    String
+  parsedData String     // JSON string for compatibility
+  createdAt  DateTime   @default(now())
+  analyses   Analysis[]
+
+  @@map("resumes")
+}
+
+model Analysis {
+  id                     String    @id @default(uuid())
+  userId                 String?
+  user                   User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId               String?
+  resume                 Resume?   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  analyzerType           String    @default("resume") // resume, text, image, code, data, general
+  inputFileName          String?
+  inputType              String?   // file, text, url
+  targetRole             String?
+  jobDescription         String?
+  atsScore               Int?
+  jobMatchScore          Int?
+  scoreBreakdown         String?   // JSON string
+  extractedSkills        String?   // JSON string
+  matchedSkills          String?   // JSON string
+  missingSkills          String?   // JSON string
+  missingKeywords        String?   // JSON string
+  strengths              String?   // JSON string
+  weaknesses             String?   // JSON string
+  improvementSuggestions String?   // JSON string
+  recommendedRoles       String?   // JSON string
+  roadmap                String?   // JSON string
+  geminiSummary          String?
+  result                 String?   // JSON string for generic/other analyzer results
+  createdAt              DateTime  @default(now())
+
+  @@index([userId])
+  @@index([analyzerType])
+  @@map("analyses")
+}
+
+model Skill {
+  id       String @id @default(uuid())
+  name     String @unique
+  category String
+
+  @@map("skills")
+}
+
+model RoleTemplate {
+  id              String @id @default(uuid())
+  title           String @unique
+  category        String
+  requiredSkills  String // JSON string
+  preferredSkills String // JSON string
+  description     String
+
+  @@map("role_templates")
+}
